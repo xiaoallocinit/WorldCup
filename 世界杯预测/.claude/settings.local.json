@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node *)",
+      "Bash(bash ~/.claude/skills/web-access-skill/scripts/check-deps.sh)",
+      "Bash(curl *)",
+      "Bash(python3 -c \"import urllib.parse; print\\(urllib.parse.quote\\('/Users/jack/Desktop/ChatGPT/世界杯预测/index.html'\\)\\)\")"
+    ]
+  }
+}
