@@ -10,9 +10,39 @@
 
 直接打开 `世界杯预测/index.html` 即可在浏览器中查看看板（纯静态页面，无需服务器）。
 
+## Mac 桌面端打包
+
+项目已接入 Tauri 2，可将静态看板打包成本地 macOS 桌面应用。
+
+首次安装依赖：
+
+```bash
+npm install
+```
+
+本地桌面端开发预览：
+
+```bash
+npm run desktop:dev
+```
+
+生成 macOS `.app` 与 `.dmg`：
+
+```bash
+npm run desktop:build
+```
+
+构建产物位于：
+
+- `src-tauri/target/release/bundle/macos/世界杯预测看板.app`
+- `src-tauri/target/release/bundle/dmg/世界杯预测看板_0.1.0_aarch64.dmg`
+
+桌面端图标源文件为 `src-tauri/icons/app-icon.png`，Tauri 生成的 macOS `.icns` 文件为 `src-tauri/icons/icon.icns`。
+
 ## 目录结构
 
 ```
+src-tauri/                   # Tauri 2 桌面端壳与 macOS 打包配置
 世界杯预测/
 ├── index.html              # 看板页面入口
 ├── assets/

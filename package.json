@@ -1,0 +1,18 @@
+{
+  "name": "worldcup-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "世界杯比分 AI 预测分析看板的 Tauri Mac 桌面端",
+  "type": "module",
+  "scripts": {
+    "web:dev": "vite --host 127.0.0.1 --port 1420 ./世界杯预测",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build",
+    "tauri": "tauri",
+    "data:build": "node 世界杯预测/scripts/build-data.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.2",
+    "vite": "^8.0.16"
+  }
+}

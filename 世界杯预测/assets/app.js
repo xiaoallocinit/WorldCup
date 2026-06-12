@@ -54,6 +54,38 @@ const WEIGHTS = [
   ["主客场", 8]
 ];
 
+// 单场人工深度分析。若某场比赛在此登记，会在预测 deck 中额外插入一页「深度分析」幻灯片。
+const MATCH_DEEP_DIVE = {
+  "M004": {
+    label: "Deep Dive",
+    title: "美国 vs 巴拉圭 · 深度分析",
+    subtitle: "在基础模型上叠加“主场行为、比赛烈度、历史风格”三项人工修正，比分中枢由 2:1 下移到 1:0。",
+    factors: [
+      ["美国主场", "领先后倾向控制节奏、不冒进", "总进球 ↓"],
+      ["比赛烈度低", "双方对攻意愿低，巴拉圭低位防守 + 反击", "总进球 ↓ / 双方进球率 ↓"],
+      ["美国风格一般", "进攻转化效率打折，难打出大比分", "美国进球数 ↓"]
+    ],
+    xgBefore: [1.65, 0.67],
+    xgAfter: [1.25, 0.50],
+    totalBefore: 2.33,
+    totalAfter: 1.75,
+    bothBefore: 42,
+    bothAfter: 33,
+    scores: [
+      ["1 : 0（美国）", "最高", "主场小胜、控节奏、零封反击型对手 — 最贴合三因子"],
+      ["2 : 0（美国）", "次高", "美国进攻效率打开时"],
+      ["2 : 1（美国）", "中等", "巴拉圭抓住一次反击 / 定位球"],
+      ["1 : 1", "偏低", "美国主场难以接受的结果"]
+    ],
+    winProb: 58,
+    pick: "1 : 0",
+    conclusion: "纳入“主场求稳、比赛不激进、美国风格一般”三点后，模型重心从 2:1 下移到 1:0：一场低总进球（under 2.5）、美国零封小胜的典型剧本。胜负概率仍明显偏向美国（约 58%），但进球数显著收敛。"
+  }
+};
+
+// 当前 deck 实际页数，供 slideHeader 显示「NN / 总数」。
+let DECK_TOTAL = 8;
+
 function esc(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -63,12 +95,7 @@ function esc(value) {
 }
 
 function markSvg() {
-  return `
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="#f3b643" stroke-width="1.7"/>
-      <path d="M7.5 8.5 12 5l4.5 3.5-1.8 5.2H9.3L7.5 8.5Z" stroke="#f3b643" stroke-width="1.7"/>
-      <path d="m9.3 13.7-2.8 3M14.7 13.7l2.8 3" stroke="#e14242" stroke-width="1.7"/>
-    </svg>`;
+  return `<img src="assets/app-icon.png" alt="" aria-hidden="true">`;
 }
 
 function formatGeneratedAt() {
@@ -418,7 +445,8 @@ function matchCard(match) {
 function renderDeck(matchId, page = 0, pushHash = true) {
   const match = DATA.matches.find((item) => item.id === matchId) || DATA.matches[0];
   state.matchId = match.id;
-  state.page = Math.max(0, Math.min(7, Number(page) || 0));
+  const total = deckTotal(match);
+  state.page = Math.max(0, Math.min(total - 1, Number(page) || 0));
   if (pushHash) setHash(match.id, state.page);
 
   const ACCENTS = ["gold", "cyan", "green", "red"];
@@ -439,7 +467,7 @@ function renderDeck(matchId, page = 0, pushHash = true) {
       </section>
       <footer class="bottombar">
         <div class="thumbs">
-          ${Array.from({ length: 8 }, (_, index) => `<button class="thumb${index === state.page ? " active" : ""}" data-page="${index}">${String(index + 1).padStart(2, "0")}</button>`).join("")}
+          ${Array.from({ length: total }, (_, index) => `<button class="thumb${index === state.page ? " active" : ""}" data-page="${index}">${String(index + 1).padStart(2, "0")}</button>`).join("")}
         </div>
         <div class="nav">
           <button data-step="-1" aria-label="上一页">‹</button>
@@ -464,8 +492,13 @@ function goPage(page) {
   renderDeck(state.matchId, page);
 }
 
+function deckTotal(match) {
+  return 8 + (MATCH_DEEP_DIVE[match.id] ? 1 : 0);
+}
+
 function slides(match) {
-  return [
+  DECK_TOTAL = deckTotal(match);
+  const deck = [
     slideScore(match),
     slidePlayers(match),
     slideHistory(match),
@@ -475,13 +508,16 @@ function slides(match) {
     slideExternal(match),
     slideModel(match)
   ];
+  const dive = MATCH_DEEP_DIVE[match.id];
+  if (dive) deck.push(slideDeepDive(match, dive, DECK_TOTAL));
+  return deck;
 }
 
 function slideHeader(num, label, title, subtitle) {
   return `
     <div class="slide-header">
       <div>
-        <div class="eyebrow">${String(num).padStart(2, "0")} / 08 · ${esc(label)}</div>
+        <div class="eyebrow">${String(num).padStart(2, "0")} / ${String(DECK_TOTAL).padStart(2, "0")} · ${esc(label)}</div>
         <h2>${esc(title)}</h2>
         <p class="subtitle">${esc(subtitle)}</p>
       </div>
@@ -751,6 +787,40 @@ function slideModel(match) {
           <p class="note">当前页面链接：#match=${esc(match.id)}&page=${state.page + 1}。复制这个地址即可直接打开对应比赛预测页。</p>
         </div>
       </div>
+    </div>`;
+}
+
+function slideDeepDive(match, dive, num) {
+  const a = team(match.team1);
+  const b = team(match.team2);
+  const dTotal = (dive.totalAfter - dive.totalBefore).toFixed(2);
+  const dBoth = dive.bothAfter - dive.bothBefore;
+  return `
+    <div class="slide-inner deepdive">
+      ${slideHeader(num, dive.label, dive.title, dive.subtitle)}
+      <div class="analysis-layout">
+        <div class="deepdive-left">
+          <p class="headline-number">${esc(dive.pick)}</p>
+          <p class="subtitle">人工修正后的主预测比分。胜负概率仍偏向${esc(a.zh)}（约 ${dive.winProb}%），但总进球数明显收敛到 under 2.5。</p>
+          <div class="grid-2">
+            <div class="mini-card"><b>${dive.xgBefore[0]} → ${dive.xgAfter[0]}</b><span>${esc(a.zh)} xG 修正</span></div>
+            <div class="mini-card"><b>${dive.xgBefore[1]} → ${dive.xgAfter[1]}</b><span>${esc(b.zh)} xG 修正</span></div>
+            <div class="mini-card"><b>${dive.totalBefore} → ${dive.totalAfter}</b><span>总进球预期（${dTotal}）</span></div>
+            <div class="mini-card"><b>${dive.bothBefore}% → ${dive.bothAfter}%</b><span>双方进球概率（${dBoth >= 0 ? "+" : ""}${dBoth}%）</span></div>
+          </div>
+        </div>
+        <div class="deepdive-right">
+          <div class="table">
+            <div class="tr head"><span>修正因子</span><span>模型解读</span><span>对比分影响</span></div>
+            ${dive.factors.map(([name, reason, effect]) => `<div class="tr"><strong>${esc(name)}</strong><span>${esc(reason)}</span><span>${esc(effect)}</span></div>`).join("")}
+          </div>
+          <div class="table">
+            <div class="tr head"><span>比分</span><span>概率档位</span><span>说明</span></div>
+            ${dive.scores.map(([score, rank, note]) => `<div class="tr"><strong>${esc(score)}</strong><span>${esc(rank)}</span><span>${esc(note)}</span></div>`).join("")}
+          </div>
+        </div>
+      </div>
+      <div class="scenario"><span class="tag">结论</span><p>${esc(dive.conclusion)}</p><b>${esc(dive.pick)}</b></div>
     </div>`;
 }
 

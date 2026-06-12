@@ -1,0 +1,24 @@
+[package]
+name = "worldcup-desktop"
+version = "0.1.0"
+description = "世界杯比分 AI 预测分析看板的 Tauri Mac 桌面端"
+authors = ["WorldCup"]
+edition = "2021"
+rust-version = "1.77.2"
+default-run = "worldcup-desktop"
+
+[lib]
+name = "worldcup_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "worldcup-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.6.2", features = [] }
+
+[dependencies]
+tauri = { version = "2.11.2", features = [] }
+# 0.3.48 currently conflicts with tauri-utils 2.9.2 on rustc 1.95.
+time = "=0.3.47"

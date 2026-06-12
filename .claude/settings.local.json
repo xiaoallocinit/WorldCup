@@ -8,7 +8,23 @@
       "Bash(git remote *)",
       "Bash(git branch *)",
       "Bash(git push *)",
-      "Bash(git ls-tree *)"
+      "Bash(git ls-tree *)",
+      "Bash(node -e ' *)",
+      "Bash(node --check assets/app.js)",
+      "Bash(node --check assets/data/score-overrides.js)",
+      "Bash(bash ~/.claude/skills/web-access-skill/scripts/check-deps.sh)",
+      "Bash(curl -s -X POST http://localhost:3456/eval?target=__TRACKED_VAR__ -d 'JSON.stringify\\({total: document.querySelectorAll\\(\".slide\"\\).length, thumbs: document.querySelectorAll\\(\".thumb\"\\).length, activeHeader: \\(document.querySelector\\(\".slide.active .eyebrow\"\\)||{}\\).textContent, headline: \\(document.querySelector\\(\".slide.active .headline-number\"\\)||{}\\).textContent, hasDive: !!document.querySelector\\(\".slide.active .scenario b\"\\)}\\)')",
+      "Bash(curl -s 'http://localhost:3456/screenshot?target=B678827BEF9909D86F80120BC762C83B&file=/tmp/deepdive.png')",
+      "Bash(curl -s \"http://localhost:3456/close?target=B678827BEF9909D86F80120BC762C83B\")",
+      "Bash(curl -s 'http://localhost:3456/screenshot?target=__TRACKED_VAR__&file=/tmp/deepdive2.png')",
+      "Bash(curl -s -X POST http://localhost:3456/eval?target=__TRACKED_VAR__ -d 'var s=document.querySelector\\(\".slide.active .slide-inner\"\\); JSON.stringify\\({scrollH: s.scrollHeight, clientH: s.clientHeight, overflow: s.scrollHeight>s.clientHeight}\\)')",
+      "Bash(curl -s http://localhost:3456/eval?target=FEE91457E9A85A2F5F476E6D44F4F4E9 -X POST -d 'location.reload\\(\\); \"reloading\"')",
+      "Bash(curl -s -X POST http://localhost:3456/eval?target=FEE91457E9A85A2F5F476E6D44F4F4E9 -d 'var s=document.querySelector\\(\".slide.active .slide-inner\"\\); JSON.stringify\\({scrollH: s.scrollHeight, clientH: s.clientHeight, overflow: s.scrollHeight>s.clientHeight}\\)')",
+      "Bash(curl -s 'http://localhost:3456/screenshot?target=FEE91457E9A85A2F5F476E6D44F4F4E9&file=/tmp/deepdive3.png')",
+      "Bash(curl -s 'http://localhost:3456/screenshot?target=__TRACKED_VAR__&file=/tmp/deepdive4.png')",
+      "Bash(curl *)",
+      "Bash(git diff *)",
+      "Bash(xargs -0 du -h)"
     ]
   }
 }

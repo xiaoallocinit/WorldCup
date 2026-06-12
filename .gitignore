@@ -1,0 +1,7 @@
+node_modules/
+
+# Tauri / Rust build output
+src-tauri/target/
+
+# macOS local files
+.DS_Store
